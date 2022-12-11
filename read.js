@@ -1,15 +1,14 @@
-
-
 const fs = require('fs'),
-      fsExtra = require('fs-extra');
+      fsExtra = require('fs-extra'),
+      useJSStyles = false;
 
-let wait = (time) => {
-    return new Promise(res => {
-        setTimeout(() => {
-            res();
-        },time)
-    })
+let fileNames = [];
+
+for(let i=1;i<=5;i++){
+    fileNames.push(`frame${i}`);
 }
+
+//fileNames = ['frame5']
 
 
 let run = async () => {
@@ -54,19 +53,12 @@ let run = async () => {
         return js;
     }
 
-    let fileNames = [];
-
-    for(let i=1;i<=5;i++){
-        fileNames.push(`frame${i}`);
-    }
-      
-    //fileNames = ['frame5']
  
     for(let fileName of fileNames)
         await createHtml(fileName)
         
     async function createHtml(name){
-        let useJSStyles = false;
+        
         let item =  JSON.parse(fs.readFileSync(`out/${name}.json`,'utf-8'));
 
         let htmlStyle = '';

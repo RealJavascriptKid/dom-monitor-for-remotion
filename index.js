@@ -67,6 +67,11 @@ let run = async () => {
     
     const page = await browser.newPage()
 
+    
+    // page.on('requestfinished', (request) => {
+    //     console.log(request.url())
+    // });
+
 
     await page.goto(url, { waitUntil: 'networkidle0' })
 
