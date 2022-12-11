@@ -4,11 +4,11 @@ const fs = require('fs'),
 
 let fileNames = [];
 
-for(let i=1;i<=5;i++){
+for(let i=1;i<=300;i++){
     fileNames.push(`frame${i}`);
 }
 
-fileNames = ['frame4']
+//fileNames = ['frame6']
 
 
 let run = async () => {
@@ -74,6 +74,7 @@ let run = async () => {
         const $ = cheerio.load(item.html
             .replaceAll(`src="/`,`src="${item.host}/`)
             .replaceAll(`src="./`,`src="${item.host}/`)
+            .replaceAll(`href="/`,`href="${item.host}/`)            
             .replaceAll(`href="assets`,`href="${item.host}/assets`)
             );
   
@@ -82,33 +83,38 @@ let run = async () => {
         $('script').remove();
         $('link').remove();
 
+        if(!item.css){
+          
 
-        let htmlStyle = '';
-        for(let id in item.styles){
+            item.css = '';
+            for(let id in item.styles){
+    
+                if(useJSStyles)            
+                    item.css += styleObjToJs(id,item.styles[id])  
+                else
+                    item.css += styleObjToCss(id,item.styles[id])          
+            }          
 
-            if(useJSStyles)            
-                htmlStyle += styleObjToJs(id,item.styles[id])  
-            else
-                htmlStyle += styleObjToCss(id,item.styles[id])          
         }
 
         if(useJSStyles)  
-            htmlStyle = `
+            item.css = `
             <script>
                 window.start = function(){
-                    ${htmlStyle}
+                    ${item.css}
                 }    
                 window.start();          
             </script>`;
         else
-            htmlStyle = `
+            item.css = `
             <style>
-                ${htmlStyle}
+                ${item.css}
             </style>`;
 
+        //$('body *').removeClass(); //remove all classes
        
 
-        $('body').append(`${htmlStyle}`)
+        $('body').append(`${item.css}`)
 
         $('body').append(`<script>document.body.scrollTop = ${item.scrollTop}</script>`)
 

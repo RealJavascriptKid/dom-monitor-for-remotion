@@ -74,14 +74,25 @@ let run = async () => {
         
                 }
         
-                let {html,css} = window._getSnapshot(document.body);
-               
+                let id = 0;
+                window._stateStyles = {};
+                let elems = document.querySelectorAll( '*' ); //document.all;
+                for(let e of elems){
+                    // if(['STYLE','SCRIPT'].includes(e.tagName))               
+                    //     continue;
+        
+                    if(!e.id)
+                        e.id = `_dynVidID_${++id}`
+                    window._stateStyles[e.id] = JSON.parse(JSON.stringify(getComputedStyle(e)))    
+                } 
+
+
                 logPageState({
                     scrollTop: document.documentElement.scrollTop,
                     mousePos:window._lastMousePos,
                     host:location.origin,
-                    css,
-                    html
+                    styles:window._stateStyles,
+                    html: document.all[0].outerHTML //document.body.innerHTML
                 });
             }
 
@@ -103,7 +114,7 @@ let run = async () => {
 
             //_keepLoggingState();
 
-           document.documentElement.addEventListener("keyup", window._logState);
+            document.documentElement.addEventListener("keyup", window._logState);
 
 
           });
