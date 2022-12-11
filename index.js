@@ -45,6 +45,7 @@ let getCurrentState = async (page) => {
         return {
             scrollTop: document.documentElement.scrollTop,
             mousePos:window._lastMousePos,
+            host:location.origin,
             styles,
             html: document.all[0].outerHTML //document.body.innerHTML
         }

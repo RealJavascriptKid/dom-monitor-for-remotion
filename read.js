@@ -8,14 +8,14 @@ for(let i=1;i<=5;i++){
     fileNames.push(`frame${i}`);
 }
 
-//fileNames = ['frame5']
+fileNames = ['frame4']
 
 
 let run = async () => {
 
     const cheerio = require('cheerio');
       
-    function styleObjToCss(id,obj){
+    function styleObjToCss(id,obj,$){
         let css = ``;
         for(let i in obj){
             if(!isNaN(i))
@@ -23,11 +23,20 @@ let run = async () => {
 
             let cssProperty = i.replace(/[A-Z]/g, m => "-" + m.toLowerCase());
 
-            if(obj[i])
-                css += `${cssProperty}:${obj[i]};`
+            if(cssProperty.startsWith('animation'))
+                continue;
+
+            if(obj[i]){
+                if($)
+                    $(`#${id}`).css(cssProperty,obj[i])
+                else
+                    css += `${cssProperty}:${obj[i]};`
+            }
+                
 
         }
-
+        if($)
+            return '';
         css = `
               #${id} {
                 ${css}
@@ -43,7 +52,7 @@ let run = async () => {
           
             if(obj[i])
                 js += `
-                window["ele${id}"].style['${i}'] = '${obj[i]}';`
+                if(window["ele${id}"])window["ele${id}"].style['${i}'] = '${obj[i]}';`
 
         }
 
@@ -61,6 +70,19 @@ let run = async () => {
         
         let item =  JSON.parse(fs.readFileSync(`out/${name}.json`,'utf-8'));
 
+
+        const $ = cheerio.load(item.html
+            .replaceAll(`src="/`,`src="${item.host}/`)
+            .replaceAll(`src="./`,`src="${item.host}/`)
+            .replaceAll(`href="assets`,`href="${item.host}/assets`)
+            );
+  
+        $('noscript, iframe').remove();
+        $('style').remove();
+        $('script').remove();
+        $('link').remove();
+
+
         let htmlStyle = '';
         for(let id in item.styles){
 
@@ -76,7 +98,7 @@ let run = async () => {
                 window.start = function(){
                     ${htmlStyle}
                 }    
-                window.start           
+                window.start();          
             </script>`;
         else
             htmlStyle = `
@@ -84,27 +106,7 @@ let run = async () => {
                 ${htmlStyle}
             </style>`;
 
-        const $ = cheerio.load(item.html
-            .replaceAll('src="/wp-content/','src="https://ratingstogo.com/wp-content/')
-            .replaceAll('href="assets','href="https://ratingstogo.com/assets')
-            );
-  
-            $('noscript, iframe').remove();
-
-
-        $('style').remove();
-        $('script').remove();
-        $('link').remove();
-
-        // let html =  `
-        // <html>
-        //     <head>
-        //         <style>
-        //           ${htmlStyle}
-        //         </style>
-        //     </head>
-        //     <body>${$.html()}</body>
-        // </html>`
+       
 
         $('body').append(`${htmlStyle}`)
 
