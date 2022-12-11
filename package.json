@@ -1,0 +1,40 @@
+{
+  "name": "y",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "arr-union": "^3.1.0",
+    "cheerio": "^1.0.0-rc.3",
+    "clone-deep": "^0.2.4",
+    "deepmerge": "^4.2.2",
+    "extract-zip": "^2.0.1",
+    "for-in": "^1.0.2",
+    "for-own": "^0.1.5",
+    "fs-extra": "^10.1.0",
+    "graceful-fs": "^4.2.9",
+    "is-buffer": "^1.1.6",
+    "is-extendable": "^0.1.1",
+    "is-plain-object": "^2.0.4",
+    "isobject": "^3.0.1",
+    "jsonfile": "^6.1.0",
+    "kind-of": "^3.2.2",
+    "lazy-cache": "^1.0.4",
+    "merge-deep": "^3.0.3",
+    "mixin-object": "^2.0.1",
+    "puppeteer": "^5.5.0",
+    "puppeteer-extra": "^3.2.3",
+    "puppeteer-extra-plugin": "^3.2.0",
+    "puppeteer-extra-plugin-stealth": "^2.9.0",
+    "puppeteer-extra-plugin-user-data-dir": "^2.3.1",
+    "puppeteer-extra-plugin-user-preferences": "^2.3.1",
+    "rimraf": "^3.0.2",
+    "shallow-clone": "^0.1.2",
+    "universalify": "^2.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

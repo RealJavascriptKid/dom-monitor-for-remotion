@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+  <style>
+    div.at-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+    .at-item {
+      width: 100px; height: 100px; background-color:#ffe672; 
+      
+      animation-name: flip-diagonal-tr;
+      animation-duration: 2s;
+      animation-timing-function: ease;
+      animation-delay: 0s;
+      animation-iteration-count: 10;
+      animation-direction: normal;
+      animation-fill-mode: none;
+        
+      /* shorthand
+      animation: flip-diagonal-tr 1s ease 0s 1 normal none;*/
+    }
+    @keyframes flip-diagonal-tr {
+        
+      0% {
+        transform:rotate3d(1,1,0,0deg);
+      }
+      100% {
+        transform:rotate3d(1,1,0,180deg);
+      }
+    }
+  </style>
+  <div class='at-container'>
+    <div class='at-item' id="at-item"></div>
+  </div>
+  
+
+</body>
+</html>
+
+
