@@ -6,6 +6,7 @@ let url = `file:///C:/Users/saadn/Desktop/sn_data/projects/remotion/dom-monitor-
 url = 'https://ratingstogo.com';
 
 
+
 const puppeteer = require('puppeteer'),
            fs = require('fs'),
            fsExtra = require('fs-extra');
@@ -18,9 +19,7 @@ let wait = (time) => {
     })
 }
 
-
-
-let run = async () => {
+let run = async (url) => {
 
     fsExtra.emptyDirSync('out');
 
@@ -109,4 +108,4 @@ let run = async () => {
           });
 
 }
- run();
+ run(url);

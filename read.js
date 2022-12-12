@@ -1,6 +1,5 @@
 const fs = require('fs'),
-      fsExtra = require('fs-extra'),
-      useJSStyles = false;
+      fsExtra = require('fs-extra');
 
 let fileNames = [];
 
@@ -23,8 +22,8 @@ let run = async () => {
 
             let cssProperty = i.replace(/[A-Z]/g, m => "-" + m.toLowerCase());
 
-            if(cssProperty.startsWith('animation'))
-                continue;
+            // if(cssProperty.startsWith('animation'))
+            //     continue;
 
             if(obj[i]){
                 if($)
@@ -35,32 +34,13 @@ let run = async () => {
                 
 
         }
-        if($)
-            return '';
         css = `
               #${id} {
                 ${css}
              }`
         return css;
     }
-
-    function styleObjToJs(id,obj){
-        let js = ``;
-        for(let i in obj){
-            if(!isNaN(i))
-              continue;
-          
-            if(obj[i])
-                js += `
-                if(window["ele${id}"])window["ele${id}"].style['${i}'] = '${obj[i]}';`
-
-        }
-
-        js = `
-            window["ele${id}"] = document.getElementById('${id}');
-            ${js}`
-        return js;
-    }
+   
 
  
     for(let fileName of fileNames)
@@ -84,35 +64,18 @@ let run = async () => {
         $('link').remove();
 
         if(!item.css){
-          
-
             item.css = '';
-            for(let id in item.styles){
-    
-                if(useJSStyles)            
-                    item.css += styleObjToJs(id,item.styles[id])  
-                else
-                    item.css += styleObjToCss(id,item.styles[id])          
-            }          
-
+            for(let id in item.styles){    
+                item.css += styleObjToCss(id,item.styles[id])          
+            }  
         }
 
-        if(useJSStyles)  
-            item.css = `
-            <script>
-                window.start = function(){
-                    ${item.css}
-                }    
-                window.start();          
-            </script>`;
-        else
-            item.css = `
+        item.css = `
             <style>
                 ${item.css}
             </style>`;
 
-        //$('body *').removeClass(); //remove all classes
-       
+        //$('body *').removeClass(); //remove all classes       
 
         $('body').append(`${item.css}`)
 
