@@ -22,8 +22,19 @@ div {
 
 <div id="at-item"></div>
 
-<p><b>Note:</b> When an animation is finished, it goes back to its original style.</p>
+<p><b>Note <span id="num"></span>: </b> When an animation is finished, it goes back to its original style.</p>
+<script>
 
+  (async () => {
+
+    for(let i=0;i<10000;i++){
+      document.getElementById('num').innerText = i;
+      await (() => {return new Promise(res => setTimeout(res,50))})()
+    }
+
+  })()
+
+</script>
 </body>
 </html>
 

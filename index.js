@@ -1,9 +1,9 @@
-let url = `file:///C:/Users/saadn/Desktop/sn_data/projects/remotion/dom-monitor-for-remotion/tests/ex2.html`,
+let url = `file:///C:/Users/saadn/Desktop/sn_data/projects/remotion/dom-monitor-for-remotion/tests/ex1.html`,
       fps = 30,
       seconds = 10,
       frameCount = 0;
 
-url = 'https://ratingstogo.com';
+//url = 'https://ratingstogo.com';
 
 
 
