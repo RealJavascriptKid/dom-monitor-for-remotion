@@ -122,9 +122,9 @@ let run = async () => {
         }
 
         // item.css = `
-        //         <style>
-        //             ${item.css}
-        //         </style>`;
+        // <style>
+        //     ${item.css}
+        // </style>`;
 
         //$('body *').removeClass(); //remove all classes
 
@@ -135,8 +135,8 @@ let run = async () => {
         item.html = $.html();
         item.html = $("body")
           .prop("outerHTML")
-          .replaceAll("<body", "<div")
-          .replaceAll("</body", "</div");
+          .replaceAll("<body", "<")
+          .replaceAll("</body", "<style>{style}</style></");
 
         item.name = name;
         htmls.push(item);
@@ -150,7 +150,7 @@ let run = async () => {
         export const Frames = (props) => {
                 const frame = useCurrentFrame();
                 const {durationInFrames, fps} = useVideoConfig();
-
+               
                 return (
                     <>
                    
@@ -160,7 +160,8 @@ let run = async () => {
                                 ${htmls.map(item => {
                                   return ` 
                                     case '${item.name}': {
-                                            return (
+                                            let style = \`${item.css}\`;
+                                            return (                                              
                                                 ${item.html}
                                             )
                                         }`;
