@@ -16,6 +16,17 @@ let run = async () => {
             '--disable-site-isolation-trials'
         ] 
     })    
+
+   
+
+    const page =  await browser.newPage()
+
+    await page.setViewport({
+        width: 1280,
+        height: 720
+    });
+
+    await page.goto('https://ratingstogo.com', { waitUntil: 'networkidle0' })
     
    
 }

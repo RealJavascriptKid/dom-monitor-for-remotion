@@ -27,12 +27,21 @@ let run = async (url) => {
     const browser = await puppeteer.launch({
         headless: false,
         ignoreHTTPSErrors: true,
-        args: [] 
+        args: [
+            '--disable-web-security',
+            '--disable-features=IsolateOrigins',
+            '--disable-site-isolation-trials'
+        ] 
     })
     
+    let pages = await browser.pages();
     
-    const page = await browser.newPage()
+    const page =  pages[0] //await browser.newPage()
 
+    await page.setViewport({
+        width: 1920,
+        height: 1080
+    });
     
     // page.on('requestfinished', (request) => {
     //     console.log(request.url())
@@ -93,16 +102,16 @@ let run = async (url) => {
            }
 
            
-            // const observer = new MutationObserver(async  mutations => {
-            //     await window._logState()              
-            // });
-            // observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+            const observer = new MutationObserver(async  mutations => {
+                await window._logState()              
+            });
+            observer.observe(document.body, { attributes: true, childList: true, subtree: true });
 
              
 
             //_keepLoggingState();
 
-           document.documentElement.addEventListener("keyup", window._logState);
+           //document.documentElement.addEventListener("keyup", window._logState);
 
 
           });

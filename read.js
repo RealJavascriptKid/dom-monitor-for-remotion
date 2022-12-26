@@ -140,9 +140,12 @@ let run = async () => {
 
         item.html = $.html();
         item.html = $("body")
+          .css('margin-top',`-${parseInt(item.scrollTop)}px`)
           .prop("outerHTML")
           .replaceAll("<body", "<div")
-          .replaceAll("</body", `<style>${item.css}</style></div`);
+          .replaceAll("</body", `
+          <style>${item.css}</style>
+          </div`);
 
         item.html = htmltoJSX.convert(item.html)
 
