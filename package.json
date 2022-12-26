@@ -13,6 +13,7 @@
     "for-own": "^0.1.5",
     "fs-extra": "^10.1.0",
     "graceful-fs": "^4.2.9",
+    "htmltojsx": "^0.3.0",
     "is-buffer": "^1.1.6",
     "is-extendable": "^0.1.1",
     "is-plain-object": "^2.0.4",

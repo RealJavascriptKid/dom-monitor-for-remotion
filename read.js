@@ -95,6 +95,12 @@ let run = async () => {
   }
 
   async function createReactFC() {
+
+    let HTMLtoJSX = require('htmltojsx');
+    let htmltoJSX = new HTMLtoJSX({
+        createClass: false,
+    });
+
     let htmls = [];
 
     for (let name of fileNames) {
@@ -135,8 +141,10 @@ let run = async () => {
         item.html = $.html();
         item.html = $("body")
           .prop("outerHTML")
-          .replaceAll("<body", "<")
-          .replaceAll("</body", "<style>{style}</style></");
+          .replaceAll("<body", "<div")
+          .replaceAll("</body", `<style>${item.css}</style></div`);
+
+        item.html = htmltoJSX.convert(item.html)
 
         item.name = name;
         htmls.push(item);
@@ -160,7 +168,6 @@ let run = async () => {
                                 ${htmls.map(item => {
                                   return ` 
                                     case '${item.name}': {
-                                            let style = \`${item.css}\`;
                                             return (                                              
                                                 ${item.html}
                                             )

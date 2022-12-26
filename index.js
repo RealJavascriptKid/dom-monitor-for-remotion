@@ -3,7 +3,7 @@ let url = `file:///C:/Users/saadn/Desktop/sn_data/projects/remotion/dom-monitor-
       seconds = 10,
       frameCount = 0;
 
-//url = 'https://ratingstogo.com';
+url = 'https://ratingstogo.com';
 
 
 
