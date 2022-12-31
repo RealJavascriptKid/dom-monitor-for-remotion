@@ -4,7 +4,7 @@ const fs = require('fs');
 const allCSSProps = require('./libs/all-css-props'),
       readDomSnapshot = require('./libs/readDomSnaphot');
 
-let url = 'file:///C:/Users/saadn/Desktop/sn_data/projects/remotion/dom-monitor-for-remotion/tests/ex4.html';
+let url = 'file:///C:/Users/saadn/Desktop/sn_data/projects/remotion/dom-monitor-for-remotion/tests/ex1.html';
 
 //url = 'https://ratingstogo.com';
 
@@ -19,19 +19,19 @@ async function test1(cdp) {
 async function test2(cdp) {
 
 
-  // const result  = await cdp.send('DOMSnapshot.captureSnapshot', { 
-  //   computedStyles: allCSSProps, //['display','width','height','color','background-color','margin'],
-  //   includePaintOrder:true,
-  //   includeDOMRects:true
-  //  });
+  const result  = await cdp.send('DOMSnapshot.captureSnapshot', { 
+    computedStyles: allCSSProps, //['display','width','height','color','background-color','margin'],
+    includePaintOrder:true,
+    includeDOMRects:true
+   });
   
-  //  fs.writeFileSync('out/domSnapshot.json', JSON.stringify(result));
+  fs.writeFileSync('out/domSnapshot.json', JSON.stringify(result));
 
-  let result = require('./out/domSnapshot.json')
+  //let result = require('./out/domSnapshot.json')
 
    let html = readDomSnapshot(result,allCSSProps)
 
-  //console.log('test2 result:',result)
+   fs.writeFileSync('out/domSnapshot.html', html);
 
 }
 

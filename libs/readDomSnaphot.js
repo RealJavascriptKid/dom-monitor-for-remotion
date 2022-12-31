@@ -86,6 +86,9 @@ module.exports = (snapshot,computedCSSProps) => {
                 break;
             case '#document':
                 break;
+            case 'style': case 'script':
+                  node.html = '';
+                  break;
             case 'input':
                 node.html = `<${node.name}${populateAttributes(node)}/>`
                 break;
