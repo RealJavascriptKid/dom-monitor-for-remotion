@@ -1,11 +1,43 @@
-module.exports = (snapshot,computedCSSProps) => {
+module.exports = (snapshot,computedCSSProps,overrideSettings = {}) => {
+
+    let settings = {
+        replaceSources:false,
+        excludeNodeNames:['script','iframe'], //['style','script','link','meta','iframe'],
+        nodeNamesToExcludeComputedSyles:['html','link','head','title','meta'],
+    }
+
+    settings = {
+        ...settings,
+        ...overrideSettings
+    }
 
     let doc = snapshot.documents[0], //let's worry about single document only for now
         strings = snapshot.strings;
 
-    let html = ``,
+    let html = ``,css = ``,
+        baseURL = strings[doc.baseURL],
         nodesFlattened = [], //hash of all nodes as flattened
-        rootNodes = [];
+        rootNodes = [],
+        cssRulesHash = {},cssRulesCount = 0;
+
+    if(baseURL.endsWith('/'))
+        baseURL = baseURL.slice(0, -1);
+
+    const hashCode = s => s.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0);
+
+
+    let getClassForCSSRules = (cssRules) => {
+        let hash = hashCode(cssRules);
+        if(!cssRulesHash[hash]){
+            let className = `style${++cssRulesCount}`;
+            cssRulesHash[hash] = className;
+            css += `
+            .${className} {
+                ${cssRules};
+            }`
+        }
+        return cssRulesHash[hash]
+    }
         
     let buildAttributes = (arr) => {
         let atr = {}
@@ -29,21 +61,24 @@ module.exports = (snapshot,computedCSSProps) => {
     let populateAttributes = (node) => {
         let att = ``;
         for(let prop in node.attributes){
-            if(prop.toLowerCase() === 'style')
+            if(['style','class'].includes(prop.toLowerCase()))
                 continue;
             att += ' ' + prop;
             att += (node.attributes[prop] != null)?`="${node.attributes[prop].replaceAll('"',"'")}"`:''; 
         }
 
         //build style attribute using computed style
-        let cssRules = [];
+        let cssRules = '';
         for(let cssRule in node.styles){
             if(node.styles[cssRule] != null)
-                cssRules.push(`${cssRule}:${node.styles[cssRule].replaceAll('"',"'")}`)
+                cssRules += `${cssRule}:${node.styles[cssRule].replaceAll('"',"'")};`
         }
 
-        if(cssRules.length)
-            att += '\n style="' + cssRules.join(';') + '"'
+        if(cssRules.length){
+            let additionalClasses = (node.attributes['class'] != null)?node.attributes['class']:''
+            att += '\n class="' + getClassForCSSRules(cssRules) + ' ' + additionalClasses   + '"'
+        }
+            
 
         return att;
     }
@@ -64,7 +99,7 @@ module.exports = (snapshot,computedCSSProps) => {
     for(let i=0;i<doc.nodes.nodeName.length;i++){
         let nodeData = {
             idx:i,
-            name: strings[doc.nodes.nodeName[i]],
+            name: strings[doc.nodes.nodeName[i]].toLowerCase(),
             value: strings[doc.nodes.nodeValue[i]],
             type: strings[doc.nodes.nodeType[i]],
             attributes:buildAttributes(doc.nodes.attributes[i]),
@@ -78,6 +113,8 @@ module.exports = (snapshot,computedCSSProps) => {
     //step 2) add computed styles 
     for(let i=0;i<doc.layout.nodeIndex.length;i++){
          let nodeData = nodesFlattened[doc.layout.nodeIndex[i]];
+         if(settings.nodeNamesToExcludeComputedSyles.includes(nodeData.name))
+             continue;
          nodeData.styles = buildStyles(doc.layout.styles[i])
     }
 
@@ -92,16 +129,22 @@ module.exports = (snapshot,computedCSSProps) => {
             rootNodes.push(node)
         }
 
+        if(settings.excludeNodeNames.includes(node.name)){
+            node.html = '';
+            continue;
+        }
+
         node.html = `{{CONTENT}}`;
-        switch(node.name.toLowerCase()){
+        switch(node.name){
             case '#text':
                 node.html = node.value || '';
                 break;
             case '#document': case '#comment':
                 break;
-            case 'style': case 'script': case 'link': case 'meta': case '::before': case '::after':
-                  node.html = '';
-                  break;
+            case '::before': case '::after':
+                node.html = '';
+                node.styles = {};
+                break;
             case 'input': case 'img': case 'br': case 'hr':
                 node.html = `<${node.name}${populateAttributes(node)}/>`
                 break;
@@ -115,6 +158,11 @@ module.exports = (snapshot,computedCSSProps) => {
     //step 4) building html
     html = populateChildren(rootNodes[0]);
 
-    html = html.replaceAll('{{CONTENT}}','');
+    html = html.replaceAll('{{CONTENT}}','')
+               .replace('</body>',`<style>${css}</style></body>`)
+               .replaceAll(`src="/`, `src="${baseURL}/`)
+               .replaceAll(`src="./`, `src="${baseURL}/`)
+               .replaceAll(`href="/`, `href="${baseURL}/`)
+               .replaceAll(`href="assets`, `href="${baseURL}/assets`)
     return html;
 }

@@ -8,6 +8,14 @@ let url = 'file:///C:/Users/saadn/Desktop/sn_data/projects/remotion/dom-monitor-
 
 url = 'https://ratingstogo.com';
 
+let wait = (time) => {
+  return new Promise(res => {
+      setTimeout(() => {
+          res();
+      },time)
+  })
+}
+
 
 async function test1(cdp) {
 
@@ -60,8 +68,14 @@ async function test3(cdp) {
     });
     const [page] = await browser.pages();
 
+    await page.setViewport({
+      width: 1920,
+      height: 1080
+  });
+
     await page.goto(url);
 
+    await wait(1000)
     
     const cdp = await page.target().createCDPSession();
 
