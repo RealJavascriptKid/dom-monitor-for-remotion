@@ -5,7 +5,7 @@ let url = `file:///C:/Users/saadn/Desktop/sn_data/projects/remotion/dom-monitor-
 
 url = 'https://ratingstogo.com';
 
-
+//url = 'https://pardesiamerican.com'
 
 const puppeteer = require('puppeteer'),
            fs = require('fs'),
@@ -102,19 +102,22 @@ let run = async (url) => {
            }
 
            
-            const observer = new MutationObserver(async  mutations => {
-                await window._logState()              
-            });
-            observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+            // const observer = new MutationObserver(async  mutations => {
+            //     await window._logState()              
+            // });
+            // observer.observe(document.body, { attributes: true, childList: true, subtree: true });
 
              
 
             //_keepLoggingState();
 
-           //document.documentElement.addEventListener("keyup", window._logState);
+           document.documentElement.addEventListener("keyup", window._logState);
 
 
           });
+
+          
+
 
 }
  run(url);
