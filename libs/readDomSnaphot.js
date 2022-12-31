@@ -2,8 +2,8 @@ module.exports = (snapshot,computedCSSProps,overrideSettings = {}) => {
 
     let settings = {
         replaceSources:false,
-        excludeNodeNames:['script','iframe'], //['style','script','link','meta','iframe'],
-        nodeNamesToExcludeComputedSyles:['html','link','head','title','meta'],
+        excludeNodeNames:['script','style','link','meta','iframe','noscript'],
+        nodeNamesToExcludeComputedSyles:['html','link','head','title','meta','noscript'],
     }
 
     settings = {
