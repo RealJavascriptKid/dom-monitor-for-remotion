@@ -4,8 +4,8 @@ module.exports = (snapshot,computedCSSProps) => {
         strings = snapshot.strings;
 
     let html = ``,
-        nodesFlattened = [] //hash of all nodes as flattened
-        ;
+        nodesFlattened = [], //hash of all nodes as flattened
+        rootNodes = [];
         
     let buildAttributes = (arr) => {
         let atr = {}
@@ -26,14 +26,37 @@ module.exports = (snapshot,computedCSSProps) => {
         return styles;
     }
 
+    let populateAttributes = (node) => {
+        let att = ``;
+        for(let prop in node.attributes){
+            att += ' ' + prop;
+            att += (node.attributes[prop] != null)?`="${node.attributes[prop]}"`:''; 
+        }
+        return att;
+    }
+
+    let populateChildren = (node) => {
+        let content = ``;
+        for(let children of node.children){
+            if(children.children.length)
+                content += populateChildren(children); //recursive
+            else
+                content += children.html;
+        }
+        node.html = node.html.replace('{{CONTENT}}',content);
+        return node.html;
+    }
+
     //step 1) flattend all node related data
     for(let i=0;i<doc.nodes.nodeName.length;i++){
         let nodeData = {
+            idx:i,
             name: strings[doc.nodes.nodeName[i]],
             value: strings[doc.nodes.nodeValue[i]],
             type: strings[doc.nodes.nodeType[i]],
             attributes:buildAttributes(doc.nodes.attributes[i]),
-            styles:{}
+            styles:{},
+            children:[]
         }
 
         nodesFlattened[i] = nodeData; //intentionally keeping the same index
@@ -45,10 +68,37 @@ module.exports = (snapshot,computedCSSProps) => {
          nodeData.styles = buildStyles(doc.layout.styles[i])
     }
 
-    //step 3) add parents
+    //step 3) add parent-children references (WARNING this makes nodesFlattend object to have circular references)
     for(let i=0;i<nodesFlattened.length;i++){
-        nodesFlattened[i].parent = nodesFlattened[doc.nodes.parentIndex[i]]
+        let node = nodesFlattened[i];
+        let parent = nodesFlattened[doc.nodes.parentIndex[i]];
+        if(parent){
+            node.parent = parent
+            parent.children.push(node)
+        }else{
+            rootNodes.push(node)
+        }
+
+        node.html = `{{CONTENT}}`;
+        switch(node.name.toLowerCase()){
+            case '#text':
+                node.html = node.value || '';
+                break;
+            case '#document':
+                break;
+            case 'input':
+                node.html = `<${node.name}${populateAttributes(node)}/>`
+                break;
+            default:
+                node.html = `<${node.name}${populateAttributes(node)}>${node.html}</${node.name}>`
+                break;
+        }
+
     }
-    
-    return nodesFlattened;
+
+    //step 4) building html
+    html = populateChildren(rootNodes[0]);
+
+    html = html.replaceAll('{{CONTENT}}','');
+    return html;
 }
