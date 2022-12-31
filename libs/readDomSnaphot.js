@@ -29,9 +29,22 @@ module.exports = (snapshot,computedCSSProps) => {
     let populateAttributes = (node) => {
         let att = ``;
         for(let prop in node.attributes){
+            if(prop.toLowerCase() === 'style')
+                continue;
             att += ' ' + prop;
-            att += (node.attributes[prop] != null)?`="${node.attributes[prop]}"`:''; 
+            att += (node.attributes[prop] != null)?`="${node.attributes[prop].replaceAll('"',"'")}"`:''; 
         }
+
+        //build style attribute using computed style
+        let cssRules = [];
+        for(let cssRule in node.styles){
+            if(node.styles[cssRule] != null)
+                cssRules.push(`${cssRule}:${node.styles[cssRule].replaceAll('"',"'")}`)
+        }
+
+        if(cssRules.length)
+            att += '\n style="' + cssRules.join(';') + '"'
+
         return att;
     }
 
@@ -84,12 +97,12 @@ module.exports = (snapshot,computedCSSProps) => {
             case '#text':
                 node.html = node.value || '';
                 break;
-            case '#document':
+            case '#document': case '#comment':
                 break;
-            case 'style': case 'script':
+            case 'style': case 'script': case 'link': case 'meta': case '::before': case '::after':
                   node.html = '';
                   break;
-            case 'input':
+            case 'input': case 'img': case 'br': case 'hr':
                 node.html = `<${node.name}${populateAttributes(node)}/>`
                 break;
             default:

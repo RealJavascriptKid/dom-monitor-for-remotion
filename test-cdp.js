@@ -6,7 +6,7 @@ const allCSSProps = require('./libs/all-css-props'),
 
 let url = 'file:///C:/Users/saadn/Desktop/sn_data/projects/remotion/dom-monitor-for-remotion/tests/ex1.html';
 
-//url = 'https://ratingstogo.com';
+url = 'https://ratingstogo.com';
 
 
 async function test1(cdp) {
