@@ -43,19 +43,78 @@ async function test2(cdp) {
 
 }
 
-async function test3(cdp) {
+async function test3(cdp,page) {
+
+  let frameCount = 0;
+  await page.exposeFunction('logPageState', async (additionalState) => {
+
+    
+    let startTime = new Date().getTime();
+    const result  = await cdp.send('DOMSnapshot.captureSnapshot', { 
+      computedStyles: allCSSProps, //['display','width','height','color','background-color','margin'],
+      includePaintOrder:false,
+      includeDOMRects:false
+     });
+     result.additionalState = additionalState;
+    fs.writeFileSync(`out/frame${++frameCount}.json`,JSON.stringify(result),'utf-8');
+    console.log(`added frame ${frameCount} in ${(new Date().getTime() - startTime)/1000}s`)
+    
+  });
+
+  await page.evaluate(() => {
+
+        window._logState = async () => {
+          if(!window._lastMousePos){
+              window._lastMousePos = {x:0,y:0}
+              onmousemove = function(e){
+                  window._lastMousePos.x = e.clientX;
+                  window._lastMousePos.y = e.clientY;
+              }
+          }
+
+      
+          logPageState({
+              scrollTop: document.documentElement.scrollTop,
+              mousePos:window._lastMousePos,
+              host:location.origin
+          });
+      }
+
+    window._keepLoggingState = async () => {
+
+        while(true){
+              await window._logState();
+              await new Promise(res => setTimeout(res,5000))
+        }
+   }
+
+   
+    // const observer = new MutationObserver(async  mutations => {
+    //     await window._logState()              
+    // });
+    // observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+
+     
+
+    //_keepLoggingState();
+
+    document.documentElement.addEventListener("keyup", window._logState);
 
 
-  // await cdp.send('DOM.enable')
-  // await cdp.send('CSS.enable')
+  });
 
-  // const result  = await cdp.send('CSS.takeComputedStyleUpdates', { 
-  //    nodeId:3
-  //  });
-  // //fs.writeFileSync('out/page.html', data);
+}
 
-  // console.log('test3 result:',result)
+//read snapshots created by test3
+async function test4(){
+     for(let i=1;i<300;i++){
 
+        let startTime = new Date().getTime();
+        let result = require(`./out/frame${i}.json`);
+        let html = readDomSnapshot(result,allCSSProps)
+        fs.writeFileSync(`out/frame${i}.html`, html);
+        console.log(`converted frame ${i} to html in ${(new Date().getTime() - startTime)/1000}s`)
+     }
 }
 
 
@@ -81,11 +140,13 @@ async function test3(cdp) {
 
     //await test1(cdp);
 
-    await test2(cdp);
+    //await test2(cdp);
 
-    await test3(cdp);
+    //await test3(cdp,page);
+
+    await test4();
     
-    await browser.close();
+    //await browser.close();
   } catch (err) {
     console.error(err);
   }

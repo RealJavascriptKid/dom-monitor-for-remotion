@@ -48,7 +48,7 @@ let run = async (url) => {
     // });
 
 
-    await page.goto(url, { waitUntil: 'networkidle0' })
+          await page.goto(url, { waitUntil: 'networkidle0' })
 
           
           await page.exposeFunction('logPageState', async (state) => {
