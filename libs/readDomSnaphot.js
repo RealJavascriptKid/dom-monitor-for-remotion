@@ -269,6 +269,7 @@ module.exports = (snapshot,computedCSSProps,overrideSettings = {}) => {
     let settings = {
         replaceSources:false,
         applyComputedStyles:true,
+        enforceComputedStyles:true, //it will add !important to all computed rules
         excludeNodeNames:['script'
                         //    ,'style'
                         //    ,'link'
@@ -285,7 +286,8 @@ module.exports = (snapshot,computedCSSProps,overrideSettings = {}) => {
     }
 
     let doc = snapshot.documents[0], //let's worry about single document only for now
-        strings = snapshot.strings;
+        strings = snapshot.strings,
+        baseCSS = snapshot.additionalState.css;
 
     let html = ``,css = ``,
         baseURL = strings[doc.baseURL],
@@ -358,13 +360,21 @@ module.exports = (snapshot,computedCSSProps,overrideSettings = {}) => {
 
         //build style attribute using computed style
         let cssRulesByClass = {};
-        for(let cssRule in node.styles){
-            if(node.styles[cssRule] != null){
-                let className = cssPropsHash[cssRule].className
+        for(let cssRuleName in node.styles){
+            if(node.styles[cssRuleName] != null){
+                let className = cssPropsHash[cssRuleName].className
                 if(!cssRulesByClass[className])
                     cssRulesByClass[className] = '';
 
-                cssRulesByClass[className] += `${cssRule}:${node.styles[cssRule].replaceAll('"',"'")};`
+                let cssRule = node.styles[cssRuleName]
+                                    .replaceAll('"',"'")
+                                    .replace('running','paused')
+
+                if(settings.enforceComputedStyles && !cssRule.includes('!important')){
+                    cssRule += ' !important'
+                }
+
+                cssRulesByClass[className] += `${cssRuleName}:${cssRule};`
             }              
         }
 
@@ -450,7 +460,7 @@ module.exports = (snapshot,computedCSSProps,overrideSettings = {}) => {
     html = populateChildren(rootNodes[0]);
 
     html = html.replaceAll('{{CONTENT}}','')
-               .replace('</body>',`<style>${css}</style></body>`)
+               .replace('</body>',`<style>${baseCSS}</style><style>${css}</style></body>`)
                .replaceAll(`src="/`, `src="${baseURL}/`)
                .replaceAll(`src="./`, `src="${baseURL}/`)
                .replaceAll(`href="/`, `href="${baseURL}/`)

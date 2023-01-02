@@ -12,7 +12,7 @@ String.prototype.toPascalCase = function () {
 const fs = require("fs"),
   fsExtra = require("fs-extra");
 
-const makeReactFC = true; //this will make react components instead of html file
+const makeReactFC = false; //this will make react components instead of html file
 
 let fileNames = [];
 

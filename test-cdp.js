@@ -4,9 +4,13 @@ const fs = require('fs');
 const allCSSProps = require('./libs/all-css-props'),
       readDomSnapshot = require('./libs/readDomSnaphot');
 
-let url = 'file:///C:/Users/saadn/Desktop/sn_data/projects/remotion/dom-monitor-for-remotion/tests/ex1.html';
+let url = 'file:///C:/Users/saadn/Desktop/sn_data/projects/remotion/dom-monitor-for-remotion/tests/ex2.html';
 
-url = 'https://ratingstogo.com';
+//url = 'https://ratingstogo.com';
+
+url = 'https://pardesiamerican.com'
+
+
 
 let wait = (time) => {
   return new Promise(res => {
@@ -14,6 +18,23 @@ let wait = (time) => {
           res();
       },time)
   })
+}
+
+async function readFrame(i){
+  let startTime = new Date().getTime();
+  let result = require(`./out/frame${i}.json`);
+  let html = readDomSnapshot(result,allCSSProps,{
+    excludeNodeNames:['script'
+       ,'style'
+       ,'link'
+       ,'meta'
+        ,'iframe'
+        ,'noscript'
+    ],
+    nodeNamesToExcludeComputedSyles:[]
+  })
+  fs.writeFileSync(`out/frame${i}.html`, html);
+  console.log(`converted frame ${i} to html in ${(new Date().getTime() - startTime)/1000}s`)
 }
 
 
@@ -58,6 +79,8 @@ async function test3(cdp,page) {
      result.additionalState = additionalState;
     fs.writeFileSync(`out/frame${++frameCount}.json`,JSON.stringify(result),'utf-8');
     console.log(`added frame ${frameCount} in ${(new Date().getTime() - startTime)/1000}s`)
+
+    await readFrame(frameCount)
     
   });
 
@@ -72,11 +95,34 @@ async function test3(cdp,page) {
               }
           }
 
+          // let css = [].slice.call(document.styleSheets)
+          //         .map(sheet => [].slice.call(sheet.rules))
+          //         .filter(sheet => !sheet.disabled)
+          //         .reduce((all_rules, rules) => all_rules.concat(rules), [])
+          //         .reduce((style, rule) => `${style}\n${rule.cssText}`, "")
+
+          let css = '';
+          let stylsheets = [].slice.call(document.styleSheets);
+          let all_rules = [];
+          for(let sheet of stylsheets){
+                if(sheet.disabled)
+                   continue;
+               try{
+
+                for(let rule of sheet.rules){
+                   all_rules.push(rule)
+                }
+               }catch(e){}
+
+          }
+          css = all_rules.reduce((style, rule) => `${style}\n${rule.cssText}`, "");
+
       
           logPageState({
               scrollTop: document.documentElement.scrollTop,
               mousePos:window._lastMousePos,
-              host:location.origin
+              host:location.origin,
+              css
           });
       }
 
@@ -108,12 +154,8 @@ async function test3(cdp,page) {
 //read snapshots created by test3
 async function test4(){
      for(let i=1;i<300;i++){
-
-        let startTime = new Date().getTime();
-        let result = require(`./out/frame${i}.json`);
-        let html = readDomSnapshot(result,allCSSProps)
-        fs.writeFileSync(`out/frame${i}.html`, html);
-        console.log(`converted frame ${i} to html in ${(new Date().getTime() - startTime)/1000}s`)
+         await readFrame(i)
+            
      }
 }
 
@@ -142,9 +184,9 @@ async function test4(){
 
     //await test2(cdp);
 
-    //await test3(cdp,page);
+    await test3(cdp,page);
 
-    await test4();
+    //await test4();
     
     //await browser.close();
   } catch (err) {
